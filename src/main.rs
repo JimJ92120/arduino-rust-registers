@@ -25,7 +25,6 @@ pub extern "C" fn main() {
 
     let port_b = PortB {};
 
-    // Port::set_output::<PortB>(PortB::PIN_13);
     port_b.set_output(PortB::PIN_13);
 
     Serial::set_baud_rate(57600);
