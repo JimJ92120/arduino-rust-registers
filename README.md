@@ -2,7 +2,7 @@
 
 Example to use registers via Rust for Arduino Uno.
 
-**Pin 13** (built-in) and **Pin 8** are set here to turn on and off and characters are being sent via `serial`.
+**Pin 13** (built-in) and **Pin 7** are set here to turn on and off and characters are being sent via `serial`.
 
 ---
 
