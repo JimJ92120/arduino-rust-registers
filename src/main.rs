@@ -8,16 +8,10 @@
 use core::panic::PanicInfo;
 
 mod lib;
-mod ports;
-mod serial;
+mod arduino;
 
-use lib::{
-    helpers,
-    Port,
-};
-
-use ports::{ PortB, PortD, PortC };
-use serial::Serial;
+use lib::{ helpers, Port };
+use arduino::{ PortB, PortC, PortD, Serial };
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
