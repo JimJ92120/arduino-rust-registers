@@ -1,15 +1,15 @@
 #[macro_export]
 macro_rules! bits {
     {} => {
-        fn set_bits(address: *mut u8, current_value: u8, value: u8) {
+        fn set_bits(address: *mut u8, value: u8) {
             unsafe {
-                core::ptr::write_volatile(address, current_value | (1 << value));
+                core::ptr::write_volatile(address, Self::get_address_value(address) | (1 << value));
             }
         }
 
-        fn unset_bits(address: *mut u8, current_value: u8, value: u8) {
+        fn unset_bits(address: *mut u8, value: u8) {
             unsafe {
-                core::ptr::write_volatile(address, current_value & !(1 << value));
+                core::ptr::write_volatile(address, Self::get_address_value(address) & !(1 << value));
             }
         }
 
