@@ -53,15 +53,15 @@ impl Serial {
     }
 
     pub fn write_string(content: &str) {
-        for character in content.chars() {
-            Self::write_character(character);
+        for character in content.bytes() {
+            Self::write_byte(character);
         }
     }
 
-    pub fn write_character(character: char) {
+    pub fn write_byte(byte: u8) {
         while !Self::is_data_register_empty() {}
 
-        Self::set_bits_value(Serial::UDR0, character as u8);
+        Self::set_bits_value(Serial::UDR0, byte);
     }
 
     fn calculate_baud_rate(baud_rate: u32) -> u8 {
