@@ -32,8 +32,8 @@ pub extern "C" fn main() {
     Serial::enable_transmissitter();
 
     loop {
-        Serial::write_character('A');
-        Serial::write_character('\n');
+        Serial::write_string("hello world\n");
+        Serial::write_string("hallo welt\n");
 
         port_b.set_pin_high(PortB::PIN_13);
         port_b.set_pin_low(PortB::PIN_8);

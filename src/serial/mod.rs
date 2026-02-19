@@ -52,7 +52,15 @@ impl Serial {
         Self::set_bits_shift(Serial::UCSR0B, Serial::TXEN0);
     }
 
+    pub fn write_string(content: &str) {
+        for character in content.chars() {
+            Self::write_character(character);
+        }
+    }
+
     pub fn write_character(character: char) {
+        while !Self::is_data_register_empty() {}
+
         Self::set_bits_value(Serial::UDR0, character as u8);
     }
 
@@ -60,5 +68,13 @@ impl Serial {
         Serial::FREQUENCY.div_euclid(
             Serial::FREQUENCY.div_euclid(1_000_000) * baud_rate
         ) as u8
+    }
+
+    fn is_data_register_empty() -> bool {
+        if Self::get_address_value(Self::UCSR0A) & (1 << Self::UDRE0) != 0 {
+            true
+        } else {
+            false
+        }
     }
 }
