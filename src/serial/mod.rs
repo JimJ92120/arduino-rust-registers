@@ -1,7 +1,11 @@
+use crate::bits;
+
 pub struct Serial;
 
 #[allow(dead_code)]
 impl Serial {
+    bits!();
+
     const FREQUENCY: u32 = 16_000_000;
 
     const UDR0: *mut u8 = 0xC6 as *mut u8;
@@ -40,22 +44,16 @@ impl Serial {
     const UMSEL01: u8 = 7;
 
     pub fn set_baud_rate(baud_rate: u32) {
-        unsafe {
-            core::ptr::write_volatile(Serial::UBRR0H, 0);
-            core::ptr::write_volatile(Serial::UBRR0L, Serial::calculate_baud_rate(baud_rate));
-        }
+        Self::clear_bits(Serial::UBRR0H);
+        Self::set_bits_value(Serial::UBRR0L, Serial::calculate_baud_rate(baud_rate));
     }
 
     pub fn enable_transmissitter() {
-        unsafe {
-            core::ptr::write_volatile(Serial::UCSR0B, 1 << Serial::TXEN0);
-        }
+        Self::set_bits_shift(Serial::UCSR0B, Serial::TXEN0);
     }
 
     pub fn write_character(character: char) {
-        unsafe {
-            core::ptr::write_volatile(Serial::UDR0, character as u8);
-        }
+        Self::set_bits_value(Serial::UDR0, character as u8);
     }
 
     fn calculate_baud_rate(baud_rate: u32) -> u8 {
