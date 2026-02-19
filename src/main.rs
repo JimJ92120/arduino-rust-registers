@@ -26,6 +26,7 @@ pub extern "C" fn main() {
     let port_b = PortB {};
 
     port_b.set_output(PortB::PIN_13);
+    port_b.set_output(PortB::PIN_8);
 
     Serial::set_baud_rate(57600);
     Serial::enable_transmissitter();
@@ -35,9 +36,11 @@ pub extern "C" fn main() {
         Serial::write_character('\n');
 
         port_b.set_pin_high(PortB::PIN_13);
+        port_b.set_pin_low(PortB::PIN_8);
         helpers::delay(DELAY_DURATION);
 
         port_b.set_pin_low(PortB::PIN_13);
+        port_b.set_pin_high(PortB::PIN_8);
         helpers::delay(DELAY_DURATION);
     }
 }
