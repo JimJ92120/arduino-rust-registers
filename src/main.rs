@@ -37,7 +37,7 @@ pub extern "C" fn main() {
         USART::UBRR0L,
         helpers::calculate_baud_rate_from_frequency(FREQUENCY, BAUD_RATE)
     );
-    // set data frame format
+    // set data frame format to 8 bits + 1 stop bit
     Address::shift(USART::UCSR0C, USART::UCSZ00);
     Address::shift(USART::UCSR0C, USART::UCSZ01);
     // enable transmission
