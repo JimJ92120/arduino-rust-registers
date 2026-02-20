@@ -50,8 +50,25 @@ impl Serial {
         Self::set_bits_value(Serial::UBRR0L, Serial::calculate_baud_rate(baud_rate));
     }
 
+    pub fn set_data_frame_format() {
+        Self::set_bits_shift(Self::UCSR0C, Self::UCSZ00);
+        Self::set_bits_shift(Self::UCSR0C, Self::UCSZ01);
+    }
+
     pub fn enable_transmissitter() {
         Self::set_bits_shift(Serial::UCSR0B, Serial::TXEN0);
+    }
+
+    pub fn enable_receiver() {
+        Self::set_bits_shift(Serial::UCSR0B, Serial::RXEN0);
+    }
+
+    pub fn is_receiver_ready() -> bool {
+        Self::get_address_value(Self::UCSR0A) & (1 << Self::RXC0) != 0
+    }
+
+    pub fn read_byte() -> u8 {
+        Self::get_address_value(Self::UDR0)
     }
 
     pub fn write_string(content: &str) {
@@ -67,9 +84,7 @@ impl Serial {
     }
 
     fn calculate_baud_rate(baud_rate: u32) -> u8 {
-        Serial::FREQUENCY.div_euclid(
-            Serial::FREQUENCY.div_euclid(1_000_000) * baud_rate
-        ) as u8
+        ((Serial::FREQUENCY / 16 / baud_rate) - 1) as u8
     }
 
     fn is_data_register_empty() -> bool {

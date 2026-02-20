@@ -21,6 +21,7 @@ fn panic(_info: &PanicInfo) -> ! {
 #[unsafe(no_mangle)]
 pub extern "C" fn main() {   
     const DELAY_DURATION: u32 = 1000000;
+    const BAUD_RATE: u32 = 57600;
 
     let port_b = PortB {};
     let port_d = PortD {};
@@ -29,12 +30,20 @@ pub extern "C" fn main() {
     port_b.set_output(PortB::PIN_13);
     port_d.set_output(PortD::PIN_7);
 
-    Serial::set_baud_rate(57600);
+    Serial::set_baud_rate(BAUD_RATE);
+    Serial::set_data_frame_format();
+
     Serial::enable_transmissitter();
+    Serial::enable_receiver();
 
     loop {
         Serial::write_string("hello world\n");
         Serial::write_string("hallo welt\n");
+
+        if Serial::is_receiver_ready() {
+            Serial::write_byte(Serial::read_byte());
+            Serial::write_byte(b'\n');
+        }
 
         port_b.set_pin_high(PortB::PIN_13);
         port_d.set_pin_low(PortD::PIN_7);
