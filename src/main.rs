@@ -10,8 +10,8 @@ use core::panic::PanicInfo;
 mod lib;
 mod arduino;
 
-use lib::{ helpers, Port };
-use arduino::{ PortB, PortC, PortD, Serial };
+use lib::{ helpers, Port, Address };
+use arduino::{ PortB, PortC, PortD, USART };
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -20,37 +20,58 @@ fn panic(_info: &PanicInfo) -> ! {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn main() {   
-    const DELAY_DURATION: u32 = 1000000;
-    const BAUD_RATE: u32 = 57600;
+    const DELAY_DURATION: u32 = 1_000_000;
+    const FREQUENCY: u32 = 16_000_000;
+    const BAUD_RATE: u32 = 57_600;
 
-    let port_b = PortB {};
-    let port_d = PortD {};
-    let _port_c = PortC {};
+    // set pin 13 as output
+    Address::shift(PortB::DDR_ADDRESS, PortB::PIN_13);
+    Address::shift(PortB::PORT_ADDRESS, PortB::PIN_13);
+    // set pin 7 as output
+    Address::shift(PortD::DDR_ADDRESS, PortD::PIN_7);
+    Address::shift(PortD::PORT_ADDRESS, PortD::PIN_7);
 
-    port_b.set_output(PortB::PIN_13);
-    port_d.set_output(PortD::PIN_7);
+    // set baud rate
+    Address::clear(USART::UBRR0H);
+    Address::set_value(
+        USART::UBRR0L,
+        helpers::calculate_baud_rate_from_frequency(FREQUENCY, BAUD_RATE)
+    );
+    // set data frame format
+    Address::shift(USART::UCSR0C, USART::UCSZ00);
+    Address::shift(USART::UCSR0C, USART::UCSZ01);
+    // enable transmission
+    Address::shift(USART::UCSR0B, USART::TXEN0);
+    // enable reception
+    Address::shift(USART::UCSR0B, USART::RXEN0);
 
-    Serial::set_baud_rate(BAUD_RATE);
-    Serial::set_data_frame_format();
-
-    Serial::enable_transmissitter();
-    Serial::enable_receiver();
+    let content = b"hello world\n";
 
     loop {
-        Serial::write_string("hello world\n");
-        Serial::write_string("hallo welt\n");
-
-        if Serial::is_receiver_ready() {
-            Serial::write_byte(Serial::read_byte());
-            Serial::write_byte(b'\n');
+        for byte in content {
+            // wait empty buffer
+            while !(0 != Address::get_value(USART::UCSR0A) & (1 << USART::UDRE0)) {}
+            
+            // write to buffer
+            Address::set_value(USART::UDR0, *byte);
         }
 
-        port_b.set_pin_high(PortB::PIN_13);
-        port_d.set_pin_low(PortD::PIN_7);
+        // wait reception ready
+        if 0 != Address::get_value(USART::UCSR0A) & (1 << USART::RXC0) {
+            // read buffer
+            let data = Address::get_value(USART::UDR0);
+
+            // write to buffer
+            Address::set_value(USART::UDR0, data);
+            Address::set_value(USART::UDR0, b'\n');
+        }
+
+        Address::shift(PortB::PORT_ADDRESS, PortB::PIN_13);
+        Address::shift(PortD::PORT_ADDRESS, PortD::PIN_7);
         helpers::delay(DELAY_DURATION);
 
-        port_b.set_pin_low(PortB::PIN_13);
-        port_d.set_pin_high(PortD::PIN_7);
+        Address::unshift(PortB::PORT_ADDRESS, PortB::PIN_13);
+        Address::unshift(PortD::PORT_ADDRESS, PortD::PIN_7);
         helpers::delay(DELAY_DURATION);
     }
 }

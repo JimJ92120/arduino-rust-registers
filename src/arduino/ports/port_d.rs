@@ -1,10 +1,8 @@
 // see https://content.arduino.cc/assets/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf#page=73
 
-use crate::lib::{ Bits, Port };
+use crate::lib::{ Port };
 
 pub struct PortD;
-
-impl Bits for PortD {}
 
 impl Port for PortD {
     const PORT_ADDRESS: *mut u8 = (0x20 | 0x0B) as *mut u8;

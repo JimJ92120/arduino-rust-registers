@@ -1,5 +1,5 @@
-mod serial;
 mod ports;
+mod usart;
 
 pub use ports::{ PortB, PortC, PortD };
-pub use serial::Serial;
+pub use usart::USART;

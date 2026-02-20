@@ -1,7 +1,7 @@
-mod bits;
+mod address;
 mod port;
 
 pub mod helpers;
 
-pub use bits::Bits;
+pub use address::Address;
 pub use port::Port;
