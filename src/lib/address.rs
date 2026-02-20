@@ -2,22 +2,26 @@
 pub struct Address {}
 
 impl Address {
-    pub fn set_value(address: *mut u8, value: u8) {
+    pub fn set(address: *mut u8, value: u8) {
         unsafe {
             core::ptr::write_volatile(address, value);
         }
     }
 
-    pub fn shift(address: *mut u8, value: u8) {
+    pub fn shift_left(address: *mut u8, value: u8) {
         unsafe {
-            core::ptr::write_volatile(address, Self::get_value(address) | (1 << value));
+            core::ptr::write_volatile(address, Self::read(address) | (1 << value));
         }
     }
 
-    pub fn unshift(address: *mut u8, value: u8) {
+    pub fn unshift_left(address: *mut u8, value: u8) {
         unsafe {
-            core::ptr::write_volatile(address, Self::get_value(address) & !(1 << value));
+            core::ptr::write_volatile(address, Self::read(address) & !(1 << value));
         }
+    }
+
+    pub fn is_shifted_left(address: *mut u8, value: u8) -> bool {
+        0 != Self::read(address) & (1 << value)
     }
 
     pub fn clear(address: *mut u8) {
@@ -26,7 +30,7 @@ impl Address {
         }
     }
 
-    pub fn get_value(address: *mut u8) -> u8 {
+    pub fn read(address: *mut u8) -> u8 {
         unsafe {
             core::ptr::read_volatile(address)
         }
