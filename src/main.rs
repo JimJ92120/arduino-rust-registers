@@ -25,10 +25,10 @@ pub extern "C" fn main() {
     uart::init(BAUD_RATE, FREQUENCY, ENABLE_TRANSMISSION, ENABLE_RECEPTION);
 
     loop {
-        uart::write("hello world\n");
+        uart::send("hello world\n");
         helpers::delay(DELAY_DURATION);
 
-        uart::write("hallo welt\n");
+        uart::send("hallo welt\n");
         helpers::delay(DELAY_DURATION);
     }
 }

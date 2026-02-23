@@ -22,7 +22,7 @@ pub fn init(baud_rate: u32, frequency: u32, enable_transmission: bool, enable_re
     }
 }
 
-pub fn write(content: &str) {
+pub fn send(content: &str) {
     for byte in content.as_bytes() {
         // wait empty buffer
         while !(Address::is_shifted_left(UART::UCSR0A, UART::UDRE0)) {}
