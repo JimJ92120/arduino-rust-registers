@@ -7,7 +7,7 @@ pub struct PortD;
 impl Port for PortD {
     const PORT_ADDRESS: *mut u8 = (REGISTER_OFFSET | 0x0B) as *mut u8;
     const DDR_ADDRESS: *mut u8 = (REGISTER_OFFSET | 0x0A) as *mut u8;
-    const PIN_ADDRESS: *mut u8 = (REGISTER_OFFSET | 0x00) as *mut u8;
+    const PIN_ADDRESS: *mut u8 = (REGISTER_OFFSET | 0x09) as *mut u8;
 }
 
 #[allow(dead_code)]

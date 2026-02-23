@@ -24,22 +24,36 @@ static REGISTER_OFFSET: u8 = 0x20;
 
 #[unsafe(no_mangle)]
 pub extern "C" fn main() {   
-    const DELAY_DURATION: u32 = 1_000_000;
+    const DELAY_DURATION: u32 = 500_000;
+    const LED_PIN: u8 = PortB::PB4;
+    const BUTTON_PIN: u8 = PortD::PD7;
 
     uart::init(BAUD_RATE, FREQUENCY, ENABLE_TRANSMISSION, ENABLE_RECEPTION);
 
-    gpio::set_output(PortB::DDR_ADDRESS, PortB::PB5);
-    gpio::set_output(PortD::DDR_ADDRESS, PortD::PD7);
+    gpio::set_output(PortB::DDR_ADDRESS, LED_PIN);
+    gpio::set_input(PortD::DDR_ADDRESS, BUTTON_PIN);
+
+    let mut is_led_on: bool = false;
 
     loop {
-        uart::send("high\n");
-        gpio::set_high(PortB::PORT_ADDRESS, PortB::PB5);
-        gpio::set_high(PortD::PORT_ADDRESS, PortD::PD7);
-        helpers::delay(DELAY_DURATION);
+        if 0 == gpio::read_input(PortD::PIN_ADDRESS, BUTTON_PIN) {
+            continue;
+        }
 
-        uart::send("low\n");
-        gpio::set_low(PortB::PORT_ADDRESS, PortB::PB5);
-        gpio::set_low(PortD::PORT_ADDRESS, PortD::PD7);
+        uart::send("button pressed\n");
+
+        if !is_led_on{
+            is_led_on = true;
+
+            gpio::set_high(PortB::PORT_ADDRESS, LED_PIN);
+            uart::send("led on\n");
+        } else {
+            is_led_on = false;
+
+            gpio::set_low(PortB::PORT_ADDRESS, LED_PIN);
+            uart::send("led off\n");
+        }
+
         helpers::delay(DELAY_DURATION);
     }
 }
