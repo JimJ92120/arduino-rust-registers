@@ -1,8 +1,8 @@
 # arduino-rust-registers
 
-Example implements an input and an output GPIO pin to:
+Example implements a digital input and a digital output to:
 
-- read an input from **GPIO 7**
+- read an input from **GPIO 7** and set a state
 - toggle (`high` / `low`) **GPIO 12** based on **GPIO 7** input state
 - send the current state (`led on` / `led off`) and action (`button pressed`) via UART
 
