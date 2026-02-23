@@ -1,17 +1,34 @@
 #![no_std]
 #![no_main]
+#![allow(special_module_name)]
 
 #![feature(asm_experimental_arch)]
 #[cfg(target_arch = "avr")]
 
-use core::panic::PanicInfo;
+mod panic;
+mod lib;
+mod arduino;
 
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {}
-}
+mod uart;
+
+use lib::helpers;
+
+static FREQUENCY: u32 = 16_000_000;
+static BAUD_RATE: u32 = 57_600;
+static ENABLE_TRANSMISSION: bool = true;
+static ENABLE_RECEPTION: bool = true;
 
 #[unsafe(no_mangle)]
-pub extern "C" fn main() { 
-    loop {}
+pub extern "C" fn main() {   
+    const DELAY_DURATION: u32 = 1_000_000;
+
+    uart::init(BAUD_RATE, FREQUENCY, ENABLE_TRANSMISSION, ENABLE_RECEPTION);
+
+    loop {
+        uart::write("hello world\n");
+        helpers::delay(DELAY_DURATION);
+
+        uart::write("hallo welt\n");
+        helpers::delay(DELAY_DURATION);
+    }
 }
