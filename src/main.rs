@@ -25,10 +25,15 @@ pub extern "C" fn main() {
     uart::init(BAUD_RATE, FREQUENCY, ENABLE_TRANSMISSION, ENABLE_RECEPTION);
 
     loop {
-        uart::send("hello world\n");
+        if let Some(byte) = uart::read() {
+            uart::send("received: ");
+            uart::send(core::str::from_utf8(&[byte]).unwrap());
+            uart::send("\n");
+        }
+
         helpers::delay(DELAY_DURATION);
 
-        uart::send("hallo welt\n");
+        uart::send("hello world\n");
         helpers::delay(DELAY_DURATION);
     }
 }

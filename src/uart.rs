@@ -31,13 +31,13 @@ pub fn send(content: &str) {
     }
 }
 
-pub fn read() -> u8 {
+pub fn read() -> Option<u8> {
     // read if receiving data
     if Address::is_shifted_left(UART::UCSR0A, UART::RXC0) {
-        return Address::read(UART::UDR0);
+        return Some(Address::read(UART::UDR0));
     }
 
-    0
+    None
 }
 
 fn calculate_baud_rate_from_frequency(frequency: u32, baud_rate: u32) -> u8 {
