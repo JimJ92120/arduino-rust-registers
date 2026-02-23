@@ -1,8 +1,9 @@
 # arduino-rust-registers
 
-Example to use registers via Rust for Arduino Uno.
+Examples to use registers via Rust for Arduino Uno (`ATmega328P`).
 
-**Pin 13** (built-in) and **Pin 7** are set here to turn on and off and characters are being sent via `serial`.
+Each example will be added to a different branch.  
+`main` will contain the initial setup and environment as project's boilerplate.
 
 ---
 
@@ -28,7 +29,28 @@ Build dependencies and environment are setup in `shell.nix`.
 nix-shell
 ```
 
-### notes
+---
+
+# usage
+
+Note that in most cases, `root` permission is required to access `/dev/ttyXXX`.
+
+```sh
+# run with serial output with `ravedude`
+cargo run
+
+# build .elf in target/avr-none/arduino.elf
+cargo build --release
+
+# push to board
+sudo avrdude -patmega328p -carduino -P/dev/ttyACM0 -b115200 -D -Uflash:w:target/avr-none/release/arduino.elf
+```
+
+---
+
+# targets
+
+### rust
 
 `target` may be different based on the `nightly` version used (e.g `avr-none`, `avr-unknown-unknown`, via `json`, etc).
 The current setup uses `latest` branch (`1.95`).
@@ -37,103 +59,26 @@ See `.cargo/config.toml`.
 
 ### other boards
 
-Update the `.cargo/config.toml` with the correct processor:
+Below files must be updated to the correct target:
 
 ```toml
+# `.cargo/config.toml`
 [build]
 ...
 rustflags = ["-C", "target-cpu=$TARGET"] # replace $TARGET
-```
 
-Then update `Raveduded.toml` with the correct board:
-
-```toml
+# `Raveduded.toml`
 [general]
 ...
 board = "$BOARD" # replace $BOARD
 
 ```
 
----
-
-# usage
+#### commands
 
 ```sh
-# run with serial output
-# (may require `root` privilege to access USB)
-cargo run
-
-# build .elf in target/avr-none/arduino.elf
-cargo build --release
-
 # push to board
-# (may require `root` privilege to access USB)
-avrdude -patmega328p -carduino -P/dev/ttyACM0 -b115200 -D -Uflash:w:target/avr-none/release/arduino.elf
-```
-
----
-
-# assembly alternative
-
-An alternative may be to use `asm!()` method and translate Assembly lines to Rust.
-e.g to turn `PIN 13` on / off:
-
-```rust
-#![no_std]
-#![no_main]
-
-#![feature(asm_experimental_arch)]
-#[cfg(target_arch = "avr")]
-
-use core::arch::asm;
-use core::panic::PanicInfo;
-
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {}
-}
-
-#[unsafe(no_mangle)]
-pub extern "C" fn main() {
-    // PORT_B: 0x05
-    // DDR_B: 0x04
-    // PIN_13: 5 (in PORT_B)
-
-    // 1 second delay with `nop`
-    const DELAY: u32 = 1000000;
-
-    unsafe {
-        asm!{
-            // set pin 13 input
-            "sbi 0x04, 5",
-            // set register `r20` to 0
-            "clr r20",
-        };
-
-    }
-
-    loop {
-        unsafe {
-            // on
-            asm!{
-                "sbi 0x05, 5"
-            };
-
-            for _ in 1..DELAY {
-                asm!("nop");
-            }
-
-            // off
-            asm!{
-                "cbi 0x05, 5"
-            };
-
-            for _ in 1..DELAY {
-                asm!("nop");
-            }
-        }
-    }
-}
+avrdude -p$BOARD -carduino -P/dev/ttyACM0 -b115200 -D -Uflash:w:target/avr-none/release/arduino.elf
 ```
 
 ---
